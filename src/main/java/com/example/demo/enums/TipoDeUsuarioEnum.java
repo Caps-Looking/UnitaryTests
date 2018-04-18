@@ -4,7 +4,7 @@ package com.example.demo.enums;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum TipoDeUsuario {
+public enum TipoDeUsuarioEnum {
 
     ADMIN("Administrador do sistema"),
     EMPRESA("Empresa"),
@@ -13,7 +13,7 @@ public enum TipoDeUsuario {
     public int id;
     public String nome;
 
-    TipoDeUsuario(String nome) {
+    TipoDeUsuarioEnum(String nome) {
         this.nome = nome;
         this.id = this.ordinal();
     }
