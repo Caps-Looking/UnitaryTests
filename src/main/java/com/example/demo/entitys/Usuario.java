@@ -32,7 +32,7 @@ public class Usuario {
     @Column(name = "tipo-de-pessoa")
     TipoDePessoaEnum tipodePessoaEnum; //enum
 
-    @Size(max = 9)
+    @Size(max = 11)
     @Column(name = "cpf")
     String cpf; //9
 
