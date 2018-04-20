@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DemoApplication;
 import com.example.demo.Exceptions.CustomException;
 import com.example.demo.entitys.Usuario;
 import com.example.demo.enums.TipoDePessoaEnum;
@@ -12,14 +13,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasToString;
@@ -32,7 +34,10 @@ import java.util.List;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = DemoApplication.class)
+@WebAppConfiguration
+@ContextConfiguration
+
 public class UsuarioControllerTest {
 
     @Autowired
