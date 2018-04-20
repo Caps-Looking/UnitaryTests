@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.Exceptions.CustomException;
 import com.example.demo.entitys.Usuario;
 import com.example.demo.enums.TipoDePessoaEnum;
 import com.example.demo.enums.TipoDeUsuarioEnum;
@@ -43,7 +44,7 @@ public class UsuarioControllerTest {
 
     private Usuario usuarioValido, usuarioInvalido;
     private MockMvc mockMvc;
-    private List<Usuario> provinciaList;
+    private List<Usuario> usuarioList;
 
     @Before
     public void setUp() throws Exception {
@@ -51,7 +52,7 @@ public class UsuarioControllerTest {
         RestAssuredMockMvc.mockMvc(mockMvc);//falta dependencia
 
 
-        this.provinciaList = new ArrayList<>();
+        this.usuarioList = new ArrayList<>();
 
         usuarioValido = new Usuario();
         usuarioValido.setNomeCompleto("Usuario válido");
@@ -61,7 +62,7 @@ public class UsuarioControllerTest {
         usuarioValido.setTipoDeUsuarioEnum(TipoDeUsuarioEnum.COMUM);
 
 
-        this.provinciaList.add(usuarioValido);
+        this.usuarioList.add(usuarioValido);
 
         usuarioInvalido = new Usuario();
         usuarioInvalido.setNomeCompleto(RandomStringUtils.randomAlphabetic(101));
@@ -70,7 +71,7 @@ public class UsuarioControllerTest {
         usuarioInvalido.setTipodePessoaEnum(TipoDePessoaEnum.FISICA);
         usuarioInvalido.setTipoDeUsuarioEnum(TipoDeUsuarioEnum.COMUM);
 
-        this.provinciaList.add(usuarioInvalido);
+        this.usuarioList.add(usuarioInvalido);
 
 
     }
@@ -91,7 +92,7 @@ public class UsuarioControllerTest {
 
     @Test
     public void listarComListaCheia() {
-        when(usuarioRepository.findAll()).thenReturn(this.provinciaList);
+        when(usuarioRepository.findAll()).thenReturn(this.usuarioList);
         List<Usuario> response = io.restassured.module.mockmvc.RestAssuredMockMvc
                 .when()
                 .get("/usuario")
@@ -102,10 +103,96 @@ public class UsuarioControllerTest {
                 .path("content");
     }
 
-    //implementar outros teste, service e controller
 
 
 
+    @Test
+    public void cadastrarItemComDadosValidos() {
+        when(usuarioRepository.save(usuarioValido)).thenReturn(usuarioValido);
+        io.restassured.module.mockmvc.RestAssuredMockMvc.given()
+                .contentType("application/json")
+                .body(usuarioValido)
+                .when()
+                .post("/usuario")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    public void cadastrarItemComDadosInvalidos() {
+        doThrow(CustomException.class).when(usuarioRepository).save(usuarioValido);
+        io.restassured.module.mockmvc.RestAssuredMockMvc.given()
+                .contentType("application/json")
+                .body(usuarioInvalido)
+                .when()
+                .post("/usuario")
+                .then()
+                .statusCode(400);
+    }
+
+//    @Test
+//    public void cadastrarItemComDadosDuplicados() {
+//        when(usuarioRepository.findUsuarioByCnpjOrAndCpf(usuarioValido.getCpf(), usuarioValido.getCnpj()).thenReturn(usuarioList),
+//        io.restassured.module.mockmvc.RestAssuredMockMvc.given()
+//                .contentType("application/json")
+//                .body(usuarioValido)
+//                .when()
+//                .post("/usuario")
+//                .then()
+//                .statusCode(409);
+//    }
+
+
+    @Test
+    public void buscarItemExistentePeloID() {
+        when(usuarioRepository.findOne(usuarioValido.getId())).thenReturn(usuarioValido);
+        io.restassured.module.mockmvc.RestAssuredMockMvc.get("/usuario/{id}", usuarioValido.getId())
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    public void buscarItemInexistentePeloID() {
+        when(usuarioRepository.findOne(usuarioValido.getId())).thenThrow(CustomException.class);
+        io.restassured.module.mockmvc.RestAssuredMockMvc.get("/usuario/{id}", usuarioValido.getId())
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    public void alterarItemInexistente() {
+        when(usuarioRepository.findOne(usuarioValido.getId())).thenThrow(CustomException.class);
+        io.restassured.module.mockmvc.RestAssuredMockMvc.get("/usuario/alterar/{id}", usuarioValido.getId())
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    public void excluirItemComDependencia() {
+        when(usuarioRepository.findOne(usuarioValido.getId())).thenReturn(usuarioValido);
+        doThrow(CustomException.class).when(usuarioRepository).delete(usuarioValido.getId());
+        io.restassured.module.mockmvc.RestAssuredMockMvc.delete("/usuario/{id}", usuarioValido.getId())
+                .then()
+                .statusCode(412);
+    }
+
+    @Test
+    public void excluirItemCadastrado() {
+        when(usuarioRepository.findOne(usuarioValido.getId())).thenReturn(usuarioValido);
+        doNothing().when(usuarioRepository).delete(usuarioValido.getId());
+        io.restassured.module.mockmvc.RestAssuredMockMvc.delete("/usuario/{id}", usuarioValido.getId())
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    public void excluirItemInexistente() {
+        when(usuarioRepository.findOne(usuarioValido.getId())).thenThrow(CustomException.class);
+        doNothing().when(usuarioRepository).delete(usuarioValido);
+        io.restassured.module.mockmvc.RestAssuredMockMvc.delete("/usuario/{id}", usuarioValido.getId())
+                .then()
+                .statusCode(404);
+    }
 
 
 }
