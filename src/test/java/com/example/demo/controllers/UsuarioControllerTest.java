@@ -1,10 +1,12 @@
 package com.example.demo.controllers;
 
 import com.example.demo.DemoApplication;
-import com.example.demo.Exceptions.CustomException;
 import com.example.demo.entitys.Usuario;
 import com.example.demo.enums.TipoDePessoaEnum;
 import com.example.demo.enums.TipoDeUsuarioEnum;
+import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.GenericException;
+import com.example.demo.exception.NotFoundException;
 import com.example.demo.repositorys.UsuarioRepository;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -37,7 +39,6 @@ import java.util.List;
 @SpringBootTest(classes = DemoApplication.class)
 @WebAppConfiguration
 @ContextConfiguration
-
 public class UsuarioControllerTest {
 
     @Autowired
@@ -70,9 +71,9 @@ public class UsuarioControllerTest {
         this.usuarioList.add(usuarioValido);
 
         usuarioInvalido = new Usuario();
-        usuarioInvalido.setNomeCompleto(RandomStringUtils.randomAlphabetic(101));
-        usuarioInvalido.setCpf(RandomStringUtils.randomAlphabetic(51));
-        usuarioInvalido.setEmail(RandomStringUtils.randomAlphabetic(12));
+        usuarioInvalido.setNomeCompleto(RandomStringUtils.randomAlphabetic(110));
+        usuarioInvalido.setCpf(RandomStringUtils.randomAlphabetic(70));
+        usuarioInvalido.setEmail(RandomStringUtils.randomAlphabetic(20));
         usuarioInvalido.setTipodePessoaEnum(TipoDePessoaEnum.FISICA);
         usuarioInvalido.setTipoDeUsuarioEnum(TipoDeUsuarioEnum.COMUM);
 
@@ -125,7 +126,7 @@ public class UsuarioControllerTest {
 
     @Test
     public void cadastrarItemComDadosInvalidos() {
-        doThrow(CustomException.class).when(usuarioRepository).save(usuarioValido);
+        doThrow(BadRequestException.class).when(usuarioRepository).save(usuarioInvalido);
         io.restassured.module.mockmvc.RestAssuredMockMvc.given()
                 .contentType("application/json")
                 .body(usuarioInvalido)
@@ -150,7 +151,7 @@ public class UsuarioControllerTest {
 
     @Test
     public void buscarItemExistentePeloID() {
-        when(usuarioRepository.findOne(usuarioValido.getId())).thenReturn(usuarioValido);
+        when(usuarioRepository.getOne(usuarioValido.getId())).thenReturn(usuarioValido);
         io.restassured.module.mockmvc.RestAssuredMockMvc.get("/usuario/{id}", usuarioValido.getId())
                 .then()
                 .statusCode(200);
@@ -158,7 +159,7 @@ public class UsuarioControllerTest {
 
     @Test
     public void buscarItemInexistentePeloID() {
-        when(usuarioRepository.findOne(usuarioValido.getId())).thenThrow(CustomException.class);
+        when(usuarioRepository.getOne(usuarioValido.getId())).thenThrow(NotFoundException.class);
         io.restassured.module.mockmvc.RestAssuredMockMvc.get("/usuario/{id}", usuarioValido.getId())
                 .then()
                 .statusCode(404);
@@ -166,7 +167,7 @@ public class UsuarioControllerTest {
 
     @Test
     public void alterarItemInexistente() {
-        when(usuarioRepository.findOne(usuarioValido.getId())).thenThrow(CustomException.class);
+        when(usuarioRepository.getOne(usuarioValido.getId())).thenThrow(GenericException.class);
         io.restassured.module.mockmvc.RestAssuredMockMvc.get("/usuario/alterar/{id}", usuarioValido.getId())
                 .then()
                 .statusCode(404);
@@ -174,8 +175,8 @@ public class UsuarioControllerTest {
 
     @Test
     public void excluirItemComDependencia() {
-        when(usuarioRepository.findOne(usuarioValido.getId())).thenReturn(usuarioValido);
-        doThrow(CustomException.class).when(usuarioRepository).delete(usuarioValido.getId());
+        when(usuarioRepository.getOne(usuarioValido.getId())).thenReturn(usuarioValido);
+        doThrow(GenericException.class).when(usuarioRepository).deleteById(usuarioValido.getId());
         io.restassured.module.mockmvc.RestAssuredMockMvc.delete("/usuario/{id}", usuarioValido.getId())
                 .then()
                 .statusCode(412);
@@ -183,8 +184,8 @@ public class UsuarioControllerTest {
 
     @Test
     public void excluirItemCadastrado() {
-        when(usuarioRepository.findOne(usuarioValido.getId())).thenReturn(usuarioValido);
-        doNothing().when(usuarioRepository).delete(usuarioValido.getId());
+        when(usuarioRepository.getOne(usuarioValido.getId())).thenReturn(usuarioValido);
+        doNothing().when(usuarioRepository).deleteById(usuarioValido.getId());
         io.restassured.module.mockmvc.RestAssuredMockMvc.delete("/usuario/{id}", usuarioValido.getId())
                 .then()
                 .statusCode(200);
@@ -192,7 +193,7 @@ public class UsuarioControllerTest {
 
     @Test
     public void excluirItemInexistente() {
-        when(usuarioRepository.findOne(usuarioValido.getId())).thenThrow(CustomException.class);
+        when(usuarioRepository.getOne(usuarioValido.getId())).thenThrow(NotFoundException.class);
         doNothing().when(usuarioRepository).delete(usuarioValido);
         io.restassured.module.mockmvc.RestAssuredMockMvc.delete("/usuario/{id}", usuarioValido.getId())
                 .then()
