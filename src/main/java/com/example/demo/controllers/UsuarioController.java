@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(path = "/usuario")
 public class UsuarioController {
@@ -17,7 +19,6 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<?> findAll(){
         return new ResponseEntity<>(usuarioService.findAll(), HttpStatus.OK);
-
     }
 
     @GetMapping(path = "/{id}")
@@ -26,7 +27,7 @@ public class UsuarioController {
     }
 
     @PostMapping(produces= "application/json")
-    public ResponseEntity<?> save(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> save(@Valid @RequestBody Usuario usuario) {
         usuarioService.save(usuario);
         return new ResponseEntity<>(usuario, HttpStatus.OK);
     }

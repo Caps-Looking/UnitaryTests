@@ -8,31 +8,28 @@ import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.GenericException;
 import com.example.demo.exception.NotFoundException;
 import com.example.demo.repositorys.UsuarioRepository;
+import com.example.demo.services.UsuarioService;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasToString;
-import static org.mockito.Mockito.*;
-
-
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.hamcrest.Matchers.hasToString;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(SpringRunner.class)
@@ -44,16 +41,17 @@ public class UsuarioControllerTest {
     @Autowired
     WebApplicationContext webApplicationContext;
 
+    UsuarioService usuarioService;
+
     @MockBean
     UsuarioRepository usuarioRepository;
-
 
     private Usuario usuarioValido, usuarioInvalido;
     private MockMvc mockMvc;
     private List<Usuario> usuarioList;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         RestAssuredMockMvc.mockMvc(mockMvc);//falta dependencia
 
@@ -78,8 +76,6 @@ public class UsuarioControllerTest {
         usuarioInvalido.setTipoDeUsuarioEnum(TipoDeUsuarioEnum.COMUM);
 
         this.usuarioList.add(usuarioInvalido);
-
-
     }
 
     @After
@@ -99,18 +95,11 @@ public class UsuarioControllerTest {
     @Test
     public void listarComListaCheia() {
         when(usuarioRepository.findAll()).thenReturn(this.usuarioList);
-        List<Usuario> response = io.restassured.module.mockmvc.RestAssuredMockMvc
+        io.restassured.module.mockmvc.RestAssuredMockMvc.given()
+                .body(usuarioList.toString())
                 .when()
-                .get("/usuario")
-                .then()
-                .statusCode(200)
-                .body("content.cpf", hasItems("04854744170"))
-                .extract()
-                .path("content");
+                .post("/usuario");
     }
-
-
-
 
     @Test
     public void cadastrarItemComDadosValidos() {
@@ -135,19 +124,6 @@ public class UsuarioControllerTest {
                 .then()
                 .statusCode(400);
     }
-
-//    @Test
-//    public void cadastrarItemComDadosDuplicados() {
-//        when(usuarioRepository.findUsuarioByCnpjOrAndCpf(usuarioValido.getCpf(), usuarioValido.getCnpj()).thenReturn(usuarioList),
-//        io.restassured.module.mockmvc.RestAssuredMockMvc.given()
-//                .contentType("application/json")
-//                .body(usuarioValido)
-//                .when()
-//                .post("/usuario")
-//                .then()
-//                .statusCode(409);
-//    }
-
 
     @Test
     public void buscarItemExistentePeloID() {
@@ -199,6 +175,5 @@ public class UsuarioControllerTest {
                 .then()
                 .statusCode(404);
     }
-
 
 }

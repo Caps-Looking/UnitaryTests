@@ -2,16 +2,18 @@ package com.example.demo.entitys;
 
 import com.example.demo.enums.TipoDePessoaEnum;
 import com.example.demo.enums.TipoDeUsuarioEnum;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "usuario")
 public class Usuario {
 
     @Id
@@ -20,32 +22,28 @@ public class Usuario {
     @SequenceGenerator(name = "usuario_generator",sequenceName = "usuario_generator",allocationSize = 1)
     long id;
 
+    @NotNull
     @Size(max = 100)
-    @Column(name = "nome-completo")
-    String nomeCompleto; //100
+    String nomeCompleto;
 
     @Size(max = 50)
-    @Column(name = "email")
-    String email; //50
+    String email;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(name = "tipo-de-pessoa")
-    TipoDePessoaEnum tipodePessoaEnum; //enum
+    @Column(name = "tipo_pessoa")
+    TipoDePessoaEnum tipodePessoaEnum;
 
     @Size(max = 11)
-    @Column(name = "cpf")
     String cpf; //9
 
     @Size(max = 14)
-    @Column(name = "cnpj")
-    String cnpj; //14
+    String cnpj;
 
     @Size(max = 50)
-    @Column(name = "senha")
-    String senha; //50 usar bycript posteriormente
+    String senha;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(name = "tipo-de-usuario")
-    TipoDeUsuarioEnum tipoDeUsuarioEnum; //enum
+    @Column(name = "tipo_usuario")
+    TipoDeUsuarioEnum tipoDeUsuarioEnum;
 
 }
