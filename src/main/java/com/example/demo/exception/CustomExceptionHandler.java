@@ -1,8 +1,8 @@
 package com.example.demo.exception;
 
-import com.example.demo.controller.JsonResponse;
-import com.example.demo.controller.JsonResponseFactory;
-import com.example.demo.controller.JsonResponseService;
+import com.example.demo.controllers.JsonResponse;
+import com.example.demo.controllers.JsonResponseFactory;
+import com.example.demo.controllers.JsonResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

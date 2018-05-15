@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.demo.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
